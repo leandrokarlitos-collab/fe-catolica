@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Exame de Consciência">
+  <rect width="512" height="512" fill="#25304f"/>
+  <g fill="#f4ecd8">
+    <rect x="236" y="150" width="40" height="240" rx="8"/>
+    <rect x="168" y="212" width="176" height="40" rx="8"/>
+  </g>
+  <circle cx="256" cy="232" r="11" fill="#ab8126"/>
+</svg>

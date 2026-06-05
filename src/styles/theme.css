@@ -1,0 +1,45 @@
+/* Design tokens — paleta "pergaminho" e tipografia litúrgica. */
+:root {
+  --parchment: #f4ecd8;
+  --parchment-2: #ece0c4;
+  --parchment-3: #e4d6b4;
+  --ink: #2c2418;
+  --ink-soft: #6a5d47;
+  --navy: #25304f;
+  --navy-deep: #1a2340;
+  --terracotta: #a85a36;
+  --terracotta-2: #c0764f;
+  --gold: #ab8126;
+  --maroon: #8a2f33;
+  --line: #d6c69e;
+  --mark: rgba(168, 90, 54, 0.1);
+  --sage: #6f7a52;
+  --sage-deep: #515a3a;
+
+  --font-serif: "Spectral", Georgia, "Times New Roman", serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+
+  --focus-ring: 0 0 0 3px rgba(37, 48, 79, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--parchment);
+}
+
+/* Foco visível e consistente para navegação por teclado. */
+:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
