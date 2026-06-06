@@ -30,9 +30,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      # Habilita o Pages automaticamente (source = GitHub Actions), se possível.
+      - id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - run: npm ci
-      # base = nome do repositório (Pages de projeto: usuario.github.io/<repo>/)
-      - run: npm run build -- --base="/${GITHUB_REPOSITORY#*/}/"
+      # base = caminho público do Pages (ex.: /fe-catolica/), vindo do configure-pages.
+      - run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
