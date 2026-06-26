@@ -49,6 +49,8 @@ export interface QuestionItem {
   since?: boolean;
   /** Se a pergunta admite "quantas vezes". Default: atos respondidos com "Sim". */
   countable?: boolean;
+  /** Pertence ao exame essencial (aparece também no modo "Resumido"). */
+  core?: boolean;
 }
 
 export type QuestionInput = string | QuestionItem;
@@ -59,19 +61,35 @@ export interface NormalizedQuestion {
   open: boolean;
   since: boolean;
   countable: boolean;
+  core: boolean;
 }
+
+/** Modo de exame: número de perguntas exibidas. */
+export type ExamMode = "resumido" | "detalhado";
 
 /** Normaliza uma pergunta para a forma completa usada pela UI e pela Revisão. */
 export function normalizeQuestion(q: QuestionInput): NormalizedQuestion {
   if (typeof q === "string") {
-    return { text: q, flag: "sim", open: false, since: false, countable: true };
+    return {
+      text: q,
+      flag: "sim",
+      open: false,
+      since: false,
+      countable: true,
+      core: false,
+    };
   }
   const flag = q.flag ?? "sim";
   const open = q.open ?? false;
   const since = q.since ?? false;
   // Por padrão, só atos cometidos (responder "Sim") pedem o número de vezes.
   const countable = q.countable ?? (flag === "sim" && !open && !since);
-  return { text: q.text, flag, open, since, countable };
+  return { text: q.text, flag, open, since, countable, core: q.core ?? false };
+}
+
+/** True se a pergunta deve aparecer no modo dado. */
+export function visibleInMode(q: NormalizedQuestion, mode: ExamMode): boolean {
+  return mode === "detalhado" || q.core;
 }
 
 /** Seções com perguntas: exame inicial e mandamentos. */

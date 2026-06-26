@@ -1,21 +1,27 @@
-import type { GroupName, Section } from "../types";
+import type { GroupName, QuestionItem, Section } from "../types";
 import { ORACAO_INICIAL, ATO_CONTRICAO, ORACAO_AGRADECIMENTO } from "./prayers";
 
 /**
  * Estrutura completa do exame de consciência.
  *
- * Cada pergunta é uma string (quando a falta é responder "Sim", e é um ato
- * contável) ou um objeto:
- *  - `{ text, flag: "nao" }` quando a falta é responder "Não"
- *    (perguntas formuladas de modo positivo, ex.: "Tenho rezado diariamente?");
- *  - `{ text, countable: false }` quando NÃO é um ato contável, mas um
- *    estado/disposição/omissão (ex.: "Guardo ódio no coração?") — não pede
- *    "quantas vezes";
- *  - `{ text, since: true }` para "Há quanto tempo não me confesso?".
+ * Convenções por pergunta:
+ *  - string          -> a falta é responder "Sim"; ato contável; só no Detalhado.
+ *  - { flag: "nao" } -> a falta é responder "Não" (perguntas positivas).
+ *  - { countable: false } -> estado/disposição/omissão (sem "quantas vezes").
+ *  - { since: true } -> "Há quanto tempo não me confesso?".
+ *  - C(...) / core:true -> pergunta essencial: aparece também no modo "Resumido".
  *
- * A opção "Não se aplica" está disponível em todas as perguntas e nunca gera
- * ponto para a confissão. Editar perguntas é só editar estes dados.
+ * A opção "Não se aplica" está em todas as perguntas e nunca gera ponto.
  */
+
+type QExtra = Omit<QuestionItem, "text">;
+/** Marca a pergunta como essencial (presente também no modo Resumido). */
+const C = (text: string, extra: QExtra = {}): QuestionItem => ({
+  text,
+  core: true,
+  ...extra,
+});
+
 export const SECTIONS: Section[] = [
   {
     id: "inicio",
@@ -39,27 +45,27 @@ export const SECTIONS: Section[] = [
     ribbon: "Exame Inicial",
     precept: "Antes de percorrer os mandamentos",
     questions: [
-      { text: "Há quanto tempo não me confesso?", since: true },
-      "Escondi, conscientemente, algum pecado grave em alguma confissão precedente?",
-      {
-        text: "Confessei, o melhor que me lembro, o número de vezes que cometi cada pecado grave?",
-        flag: "nao",
-      },
+      C("Há quanto tempo não me confesso?", { since: true }),
+      C("Escondi, conscientemente, algum pecado grave em alguma confissão precedente?"),
+      C(
+        "Confessei, o melhor que me lembro, o número de vezes que cometi cada pecado grave?",
+        { flag: "nao" },
+      ),
       {
         text: "Confessei com clareza os meus pecados ou fui demasiado genérico?",
         flag: "nao",
       },
-      { text: "Fiz a penitência que me foi imposta?", flag: "nao" },
+      C("Fiz a penitência que me foi imposta?", { flag: "nao" }),
       { text: "Reparei as injustiças que cometi?", flag: "nao" },
-      "Comunguei em pecado mortal?",
+      C("Comunguei em pecado mortal?"),
       {
         text: "Respeitei o jejum eucarístico de uma hora antes da comunhão?",
         flag: "nao",
       },
-      {
-        text: "Estou verdadeiramente arrependido dos meus pecados e luto para não pecar mais?",
-        flag: "nao",
-      },
+      C(
+        "Estou verdadeiramente arrependido dos meus pecados e luto para não pecar mais?",
+        { flag: "nao" },
+      ),
     ],
   },
   {
@@ -84,11 +90,11 @@ export const SECTIONS: Section[] = [
         countable: false,
       },
       "Cometi pecados no intuito de confessá-los mais tarde?",
-      {
-        text: "Tenho posto em dúvida ou negado, deliberadamente, alguma verdade revelada por Deus e como tal ensinada pela Igreja?",
-        countable: false,
-      },
-      { text: "Tenho rezado diariamente com atenção e devoção?", flag: "nao" },
+      C(
+        "Tenho posto em dúvida ou negado, deliberadamente, alguma verdade revelada por Deus e como tal ensinada pela Igreja?",
+        { countable: false },
+      ),
+      C("Tenho rezado diariamente com atenção e devoção?", { flag: "nao" }),
       "Frequentei os sacramentos de má vontade?",
       { text: "Leio e medito, com frequência, na Palavra de Deus?", flag: "nao" },
       {
@@ -98,15 +104,19 @@ export const SECTIONS: Section[] = [
       "Defendi, por exemplo, que nós podemos só confessar diretamente a Deus, ou que o “casamento” civil entre batizados é aceitável em certos casos, ou que todas as religiões são iguais?",
       "Li alguma coisa, ouvi alguma música, ou vi algum programa contra Deus, contra a Igreja ou contra os bons costumes?",
       "Recebi indignamente algum sacramento?",
-      "Faltei ao respeito das coisas santas, por exemplo, conversando ou brincando dentro da igreja, vindo indecentemente vestido para a igreja, ou omitindo a genuflexão sempre que passo diante do Santíssimo Sacramento?",
-      {
-        text: "Coloquei a minha vontade, as minhas ideias, o dinheiro, o trabalho, os divertimentos, o prazer, a fama, o poder ou alguma coisa criada em primeiro lugar na minha vida?",
-        countable: false,
-      },
+      C(
+        "Faltei ao respeito das coisas santas, por exemplo, conversando ou brincando dentro da igreja, vindo indecentemente vestido para a igreja, ou omitindo a genuflexão sempre que passo diante do Santíssimo Sacramento?",
+      ),
+      C(
+        "Coloquei a minha vontade, as minhas ideias, o dinheiro, o trabalho, os divertimentos, o prazer, a fama, o poder ou alguma coisa criada em primeiro lugar na minha vida?",
+        { countable: false },
+      ),
       "Adorei a Satanás? Invoquei Satanás?",
       "Usei coisas, li textos, ou ouvi músicas que invocam explicitamente o demônio?",
       { text: "Sou supersticioso?", countable: false },
-      "Pratiquei a magia, o espiritismo, fui à bruxa, a médiuns, ou a curandeiros?",
+      C(
+        "Pratiquei a magia, o espiritismo, fui à bruxa, a médiuns, ou a curandeiros?",
+      ),
       "Pratiquei a adivinhação através da astrologia, do jogo do copo, do pêndulo, das cartas do tarôt, da leitura da palma da mão ou coisas semelhantes a estas?",
       { text: "Acreditei em horóscopos?", countable: false },
       "Usei amuletos como a ferradura, o corno, as figas, os cristais ou coisas semelhantes?",
@@ -119,6 +129,18 @@ export const SECTIONS: Section[] = [
         text: "Fui negligente na oração e na vida espiritual por preguiça (acédia)?",
         countable: false,
       },
+      {
+        text: "Murmurei contra Deus ou fui ingrato pelos seus benefícios?",
+        countable: false,
+      },
+      "Pus em risco a minha fé com leituras, ambientes, companhias ou conteúdos contrários a ela?",
+      { text: "Pertenci à maçonaria ou a alguma seita?", countable: false },
+      "Tentei a Deus, exigindo sinais ou milagres?",
+      {
+        text: "Pratiquei a religião apenas por hábito ou aparência, sem o coração?",
+        countable: false,
+      },
+      "Comulguei sem a devida preparação ou sem ação de graças?",
     ],
   },
   {
@@ -129,13 +151,20 @@ export const SECTIONS: Section[] = [
     ribbon: "2º Mandamento",
     precept: "Não invocar o santo Nome de Deus em vão",
     questions: [
-      "Blasfemei ou falei sem respeito contra Deus, contra os Santos ou contra as coisas santas?",
+      C(
+        "Blasfemei ou falei sem respeito contra Deus, contra os Santos ou contra as coisas santas?",
+      ),
       "Falei mal da Igreja, do Papa, dos Bispos ou dos Padres?",
-      "Pronunciei levianamente ou sem respeito o Nome de Deus, por exemplo, em anedotas ou piadas? Ou achei graça a tais piadas?",
-      "Jurei sabendo que era falso o que prometia?",
+      C(
+        "Pronunciei levianamente ou sem respeito o Nome de Deus, por exemplo, em anedotas ou piadas? Ou achei graça a tais piadas?",
+      ),
+      C("Jurei sabendo que era falso o que prometia?"),
       "Jurei fazer alguma coisa injusta ou ilícita?",
       "Roguei pragas?",
       "Deixei de cumprir algum voto ou promessa?",
+      "Usei o nome de Deus, de Jesus, de Nossa Senhora ou dos Santos com irritação ou de modo irreverente?",
+      "Reclamei usando expressões irreverentes (“meu Deus”, “pelo amor de Deus”) em vão?",
+      "Zombei de pessoas piedosas ou de práticas religiosas?",
     ],
   },
   {
@@ -146,15 +175,18 @@ export const SECTIONS: Section[] = [
     ribbon: "3º Mandamento",
     precept: "Santificar os domingos e festas de guarda",
     questions: [
-      "Faltei à Missa ao domingo ou em algum dia santo?",
-      "Cheguei tarde à Missa por culpa própria?",
-      "Trabalhei ou mandei trabalhar nesses dias sem grave necessidade?",
+      C("Faltei à Missa ao domingo ou em algum dia santo?"),
+      C("Cheguei tarde à Missa por culpa própria?"),
+      C("Trabalhei ou mandei trabalhar nesses dias sem grave necessidade?"),
       {
         text: "Não dediquei nesses dias mais tempo a Deus, à família, aos pobres, aos doentes e ao descanso?",
         countable: false,
       },
       "Distraí-me voluntariamente na Missa, por exemplo com o celular?",
       "Saí da Missa antes do fim sem motivo justo?",
+      "Comulguei sem ter participado da Missa inteira por culpa minha?",
+      "Deixei de santificar as festas de guarda?",
+      "Fiz, sem necessidade, compras ou trabalhos pesados que poderia evitar no domingo?",
     ],
   },
   {
@@ -165,21 +197,18 @@ export const SECTIONS: Section[] = [
     ribbon: "4º Mandamento",
     precept: "Honrar pai e mãe e os outros legítimos superiores",
     questions: [
-      { text: "Obedeci aos meus pais enquanto estive sob a sua tutela?", flag: "nao" },
-      { text: "Manifesto-lhes o devido amor, gratidão e respeito?", flag: "nao" },
+      C("Obedeci aos meus pais enquanto estive sob a sua tutela?", { flag: "nao" }),
+      C("Manifesto-lhes o devido amor, gratidão e respeito?", { flag: "nao" }),
       { text: "Ajudo-os espiritual e materialmente?", flag: "nao" },
       "Entristeci-os com as minhas atitudes e comportamentos?",
       { text: "Abandonei-os na velhice, ou na doença?", countable: false },
       { text: "Tenho rezado por eles?", flag: "nao" },
-      "Zanguei-me com os meus irmãos? Maltratei-os?",
-      { text: "Tenho transmitido a fé aos meus filhos?", flag: "nao" },
+      C("Zanguei-me com os meus irmãos? Maltratei-os?"),
+      C("Tenho transmitido a fé aos meus filhos?", { flag: "nao" }),
       "Atrasei o seu batismo, ou a sua primeira comunhão?",
       { text: "Tenho me empenhado na sua educação?", flag: "nao" },
       "Defendo-os do pecado? Dei-lhes maus exemplos?",
-      {
-        text: "Corrigi com firmeza e paciência os seus defeitos?",
-        flag: "nao",
-      },
+      { text: "Corrigi com firmeza e paciência os seus defeitos?", flag: "nao" },
       {
         text: "Fui amável com os estranhos e pouco amável na vida de família?",
         countable: false,
@@ -190,28 +219,16 @@ export const SECTIONS: Section[] = [
         text: "Ajudo, dentro das minhas possibilidades, os meus familiares nas necessidades espirituais ou materiais?",
         flag: "nao",
       },
-      {
-        text: "Guardei a abstinência de carne nas sextas-feiras ao longo do ano?",
-        flag: "nao",
-      },
-      {
-        text: "Jejuei na Quarta-Feira de Cinzas e Sexta-Feira Santa?",
-        flag: "nao",
-      },
-      { text: "Confessei-me pelo menos uma vez por ano?", flag: "nao" },
-      {
-        text: "Comunguei pelo menos uma vez por ano pela Páscoa?",
-        flag: "nao",
-      },
+      { text: "Guardei a abstinência de carne nas sextas-feiras ao longo do ano?", flag: "nao" },
+      { text: "Jejuei na Quarta-Feira de Cinzas e Sexta-Feira Santa?", flag: "nao" },
+      C("Confessei-me pelo menos uma vez por ano?", { flag: "nao" }),
+      C("Comunguei pelo menos uma vez por ano pela Páscoa?", { flag: "nao" }),
       {
         text: "Tenho contribuído para as necessidades da Igreja segundo minhas possibilidades?",
         flag: "nao",
       },
       { text: "Obedeci ao Papa, ao meu Bispo e ao meu Pároco?", flag: "nao" },
-      {
-        text: "Obedeci às justas determinações das autoridades civis?",
-        flag: "nao",
-      },
+      { text: "Obedeci às justas determinações das autoridades civis?", flag: "nao" },
       {
         text: "Como cidadão, omiti-me do bem comum, por exemplo deixando de votar com consciência ou de participar da vida social?",
         countable: false,
@@ -220,6 +237,13 @@ export const SECTIONS: Section[] = [
         text: "Deixei-me absorver pelo trabalho ou pelas telas, descuidando da presença com a minha família?",
         countable: false,
       },
+      "Desejei a morte ou algum mal aos meus pais ou superiores?",
+      "Envergonhei-me dos meus pais ou falei mal deles?",
+      {
+        text: "Como pai, mãe ou superior, fui injusto, autoritário ou negligente com quem me é confiado?",
+        countable: false,
+      },
+      "Critiquei ou desautorizei o meu cônjuge diante dos filhos?",
     ],
   },
   {
@@ -231,22 +255,23 @@ export const SECTIONS: Section[] = [
     precept:
       "Não matar nem causar outro dano no corpo ou na alma a si mesmo ou ao próximo",
     questions: [
-      "Causei prejuízos ao próximo com palavras ou com obras?",
+      C("Causei prejuízos ao próximo com palavras ou com obras?"),
       "Desejei-lhe mal? Agredi alguém? Insultei alguém?",
-      "Deixei-me levar pela ira?",
+      C("Deixei-me levar pela ira?"),
       { text: "Alimentei pensamentos de vingança?", countable: false },
-      { text: "Guardo, no coração, ódio ou rancor a alguém?", countable: false },
+      C("Guardo, no coração, ódio ou rancor a alguém?", { countable: false }),
+      C("Perdoei verdadeiramente as ofensas que recebi?", { flag: "nao" }),
       { text: "Deixei de falar ou nego a saudação a alguém?", countable: false },
       "Cheguei a ferir ou a tirar a vida do próximo?",
       "Colaborei, de algum modo, em atos que ocasionassem a morte de um inocente?",
-      "Pratiquei, aconselhei ou facilitei o crime gravíssimo de aborto?",
+      C("Pratiquei, aconselhei ou facilitei o crime gravíssimo de aborto?"),
       { text: "Defendi o aborto em certos casos?", countable: false },
       "Fui gravemente imprudente na condução de veículos motorizados, pondo em risco a minha vida e dos outros?",
       {
         text: "Cometi algum atentado contra a minha vida? Alimento pensamentos de suicídio?",
         countable: false,
       },
-      "Embriaguei-me ou, levado pela gula, comi mais do que devia? Tomei drogas?",
+      C("Embriaguei-me ou, levado pela gula, comi mais do que devia? Tomei drogas?"),
       {
         text: "Preocupei-me eficazmente pelo bem do próximo, advertindo-o de algum perigo material ou espiritual, em que se encontrava?",
         flag: "nao",
@@ -258,6 +283,10 @@ export const SECTIONS: Section[] = [
       "Tratei alguém com desprezo por sua raça, condição ou origem?",
       "Humilhei ou pratiquei bullying contra alguém, inclusive pela internet?",
       { text: "Descuidei gravemente da minha saúde?", countable: false },
+      { text: "Desejei a morte a alguém ou a mim mesmo?", countable: false },
+      "Bati, feri ou maltratei fisicamente alguém?",
+      "Provoquei brigas, rixas ou ódio entre as pessoas?",
+      "Fui cruel com pessoas ou com animais?",
     ],
   },
   {
@@ -269,12 +298,14 @@ export const SECTIONS: Section[] = [
     precept:
       "Guardar castidade nas palavras e nas obras. Guardar castidade nos pensamentos e nos desejos",
     questions: [
-      "Consenti em pensamentos ou desejos contra a castidade?",
+      C("Consenti em pensamentos ou desejos contra a castidade?"),
       "Fixei o olhar, falei ou li coisas sensuais ou obscenas?",
-      "Vi pornografia?",
+      C("Vi pornografia?"),
       "Procurei o prazer sexual fora do ato conjugal?",
       "Tive liberdades no namoro? Respeitei o corpo da minha namorada (do meu namorado)?",
-      "Pequei contra a castidade por atos? Sozinho (masturbação) ou acompanhado (adultério, fornicação, com pessoas do mesmo sexo)?",
+      C(
+        "Pequei contra a castidade por atos? Sozinho (masturbação) ou acompanhado (adultério, fornicação, com pessoas do mesmo sexo)?",
+      ),
       {
         text: "Havia alguma circunstância — de parentesco, matrimónio, consagração a Deus, ou menoridade — que tornassem mais grave aquela ação?",
         countable: false,
@@ -297,7 +328,7 @@ export const SECTIONS: Section[] = [
         text: "Uso do matrimônio somente naqueles dias em que julgo não poder haver descendência?",
         countable: false,
       },
-      "Faltei à fidelidade conjugal por pensamentos ou por acções?",
+      C("Faltei à fidelidade conjugal por pensamentos ou por acções?"),
       {
         text: "Mantenho amizades que são ocasião habitual deste pecado de infidelidade? Estou disposto(a) a abandoná-las?",
         countable: false,
@@ -307,6 +338,9 @@ export const SECTIONS: Section[] = [
         text: "Cultivei relacionamentos virtuais afetivos impróprios?",
         countable: false,
       },
+      "Conversei sobre temas impuros ou contei e ouvi piadas obscenas?",
+      "Fui imodesto no modo de vestir ou de me comportar?",
+      "Frequentei lugares, festas ou companhias perigosas para a castidade?",
     ],
   },
   {
@@ -318,15 +352,12 @@ export const SECTIONS: Section[] = [
     precept:
       "Não furtar, ou injustamente reter ou danificar os bens do próximo. Não cobiçar as coisas alheias",
     questions: [
-      "Roubei algum objeto ou alguma quantia em dinheiro? Reparei os danos causados?",
+      C("Roubei algum objeto ou alguma quantia em dinheiro? Reparei os danos causados?"),
       {
         text: "Tive inveja dos outros? Cobicei as coisas alheias?",
         countable: false,
       },
-      {
-        text: "Paguei aos outros os salários devidos pelo trabalho?",
-        flag: "nao",
-      },
+      C("Paguei aos outros os salários devidos pelo trabalho?", { flag: "nao" }),
       { text: "Paguei os impostos?", flag: "nao" },
       {
         text: "Trabalhei com empenho nas horas que devia, ou desperdicei tempo no meu trabalho?",
@@ -342,7 +373,7 @@ export const SECTIONS: Section[] = [
       "Aproveitei-me injustamente da desgraça alheia?",
       "Prejudiquei, de algum modo, o próximo nos seus bens?",
       "Enganei o próximo cobrando mais do que o valor justo combinado, ou alterando a quantidade ou qualidade dos bens ou dos serviços prestados?",
-      { text: "Reparei as injustiças que pratiquei?", flag: "nao" },
+      C("Reparei as injustiças que pratiquei?", { flag: "nao" }),
       {
         text: "Tolerei abusos ou injustiças que tinha obrigação de impedir?",
         countable: false,
@@ -359,10 +390,17 @@ export const SECTIONS: Section[] = [
         flag: "nao",
       },
       "Dei ou recebi suborno, propina, ou participei de corrupção?",
+      C(
+        "Fui indiferente aos pobres, deixando de socorrê-los conforme as minhas possibilidades?",
+        { countable: false },
+      ),
+      "Causei danos à propriedade alheia ou aos bens públicos?",
+      "Contraí dívidas sem intenção ou possibilidade de pagá-las?",
       {
-        text: "Fui indiferente aos pobres, deixando de socorrê-los conforme as minhas possibilidades?",
+        text: "Fui avarento e apegado ao dinheiro, fechando o coração a quem precisa?",
         countable: false,
       },
+      "Encobri ou comprei coisa que sabia ser furtada?",
     ],
   },
   {
@@ -374,7 +412,7 @@ export const SECTIONS: Section[] = [
     precept:
       "Não levantar falsos testemunhos nem de qualquer outro modo faltar à verdade ou difamar o próximo",
     questions: [
-      "Disse mentiras? Reparei os prejuízos causados?",
+      C("Disse mentiras? Reparei os prejuízos causados?"),
       {
         text: "Minto habitualmente com a desculpa de que as mentiras não prejudicam ninguém?",
         countable: false,
@@ -386,9 +424,11 @@ export const SECTIONS: Section[] = [
         text: "Reparei de algum modo os prejuízos causados, por exemplo, falando dos aspectos positivos dessa pessoa?",
         flag: "nao",
       },
-      "Caluniei, atribuindo ao próximo defeitos que não eram verdadeiros? Já reparei os males causados?",
+      C(
+        "Caluniei, atribuindo ao próximo defeitos que não eram verdadeiros? Já reparei os males causados?",
+      ),
       "Disse mal dos outros baseando-me apenas nos boatos que ouço?",
-      "Colaborei, nas minhas conversas, na calúnia, na difamação ou na murmuração?",
+      C("Colaborei, nas minhas conversas, na calúnia, na difamação ou na murmuração?"),
       "Semeei discórdias e inimizades com as minhas palavras?",
       "Exagerei os defeitos do próximo?",
       { text: "Gosto de ouvir falar mal do próximo?", countable: false },
@@ -398,6 +438,9 @@ export const SECTIONS: Section[] = [
         text: "Deixei de defender a verdade ou a boa fama de alguém quando podia?",
         countable: false,
       },
+      { text: "Fui hipócrita ou falso, fingindo o que não sou?", countable: false },
+      "Acusei falsamente alguém ou dei falso testemunho?",
+      "Adulei alguém por interesse?",
     ],
   },
   {

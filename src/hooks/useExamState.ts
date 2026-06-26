@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Answer, ExamData } from "../types";
+import type { Answer, ExamData, ExamMode } from "../types";
 
 /**
  * Estado central do exame: respostas, anotações por pergunta e anotações por
@@ -15,6 +15,7 @@ import type { Answer, ExamData } from "../types";
 const STORAGE_VERSION = "v1";
 const DATA_KEY = `exame-consciencia:${STORAGE_VERSION}`;
 const PERSIST_FLAG_KEY = `exame-consciencia:persist:${STORAGE_VERSION}`;
+const MODE_KEY = `exame-consciencia:mode:${STORAGE_VERSION}`;
 
 const EMPTY: ExamData = { answers: {}, qnotes: {}, counts: {}, notes: {} };
 
@@ -46,6 +47,10 @@ function loadPersistFlag(): boolean {
   return safeGetItem(PERSIST_FLAG_KEY) === "1";
 }
 
+function loadMode(): ExamMode {
+  return safeGetItem(MODE_KEY) === "resumido" ? "resumido" : "detalhado";
+}
+
 function loadData(): ExamData {
   const raw = safeGetItem(DATA_KEY);
   if (!raw) return EMPTY;
@@ -66,6 +71,9 @@ export interface ExamState extends ExamData {
   /** Se true, o estado é persistido em localStorage neste aparelho. */
   persist: boolean;
   setPersist: (on: boolean) => void;
+  /** Modo de exame (quantidade de perguntas). Sempre lembrado neste aparelho. */
+  mode: ExamMode;
+  setMode: (mode: ExamMode) => void;
   /** Define/alterna resposta. Tocar na escolha já ativa limpa (volta a indefinido). */
   setAnswer: (key: string, value: Answer) => void;
   setQNote: (key: string, value: string) => void;
@@ -80,6 +88,8 @@ export function useExamState(): ExamState {
   const [data, setData] = useState<ExamData>(() =>
     loadPersistFlag() ? loadData() : EMPTY,
   );
+
+  const [mode, setModeState] = useState<ExamMode>(() => loadMode());
 
   // Evita gravar no primeiro render quando não há persistência.
   const firstRun = useRef(true);
@@ -119,6 +129,11 @@ export function useExamState(): ExamState {
     });
   }, []);
 
+  const setMode = useCallback((next: ExamMode) => {
+    setModeState(next);
+    safeSetItem(MODE_KEY, next);
+  }, []);
+
   const setQNote = useCallback((key: string, value: string) => {
     setData((d) => ({ ...d, qnotes: { ...d.qnotes, [key]: value } }));
   }, []);
@@ -140,6 +155,8 @@ export function useExamState(): ExamState {
     ...data,
     persist,
     setPersist,
+    mode,
+    setMode,
     setAnswer,
     setQNote,
     setCount,

@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
-import type { Answer, ExamData, QuestionSection } from "../../types";
-import { normalizeQuestion } from "../../types";
+import type { Answer, ExamData, ExamMode, QuestionSection } from "../../types";
+import { normalizeQuestion, visibleInMode } from "../../types";
 import { SectionHeader } from "../SectionHeader";
 import { QuestionBlock } from "../QuestionBlock";
 import { SinceConfession } from "../SinceConfession";
@@ -8,6 +8,7 @@ import { SinceConfession } from "../SinceConfession";
 interface Props {
   section: QuestionSection;
   data: ExamData;
+  mode: ExamMode;
   reducedMotion: boolean;
   onAnswer: (key: string, value: Answer) => void;
   onQNote: (key: string, value: string) => void;
@@ -17,11 +18,15 @@ interface Props {
 
 export const ExamView = forwardRef<HTMLHeadingElement, Props>(
   function ExamView(
-    { section, data, reducedMotion, onAnswer, onQNote, onCount, onNote },
+    { section, data, mode, reducedMotion, onAnswer, onQNote, onCount, onNote },
     ref,
   ) {
-    const answered = section.questions.filter((q, i) => {
-      const norm = normalizeQuestion(q);
+    // Mantém o índice original (chave de estado), filtrando pelo modo escolhido.
+    const visible = section.questions
+      .map((q, i) => ({ norm: normalizeQuestion(q), i }))
+      .filter(({ norm }) => visibleInMode(norm, mode));
+
+    const answered = visible.filter(({ norm, i }) => {
       const key = `${section.id}-${i}`;
       return norm.open || norm.since
         ? (data.qnotes[key] ?? "").trim().length > 0
@@ -39,12 +44,11 @@ export const ExamView = forwardRef<HTMLHeadingElement, Props>(
           para informar quantas vezes.
         </p>
         <p className="section-progress" aria-live="polite">
-          {answered} de {section.questions.length} respondidas
+          {answered} de {visible.length} respondidas
         </p>
 
         <ul className="qlist">
-          {section.questions.map((q, i) => {
-            const norm = normalizeQuestion(q);
+          {visible.map(({ norm, i }, pos) => {
             const key = `${section.id}-${i}`;
 
             if (norm.since) {
@@ -66,7 +70,7 @@ export const ExamView = forwardRef<HTMLHeadingElement, Props>(
               <QuestionBlock
                 key={key}
                 id={key}
-                index={i}
+                index={pos}
                 question={norm.text}
                 flag={norm.flag}
                 open={norm.open}

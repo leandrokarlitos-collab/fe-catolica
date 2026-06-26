@@ -129,6 +129,8 @@ export default function App() {
         currentIndex={idx}
         onJump={jump}
         data={exam}
+        mode={exam.mode}
+        onModeChange={exam.setMode}
         markedCount={markedCount}
       />
 
@@ -139,6 +141,8 @@ export default function App() {
               ref={headingRef}
               persist={exam.persist}
               onPersistChange={exam.setPersist}
+              mode={exam.mode}
+              onModeChange={exam.setMode}
               onStart={() => go(1)}
             />
           )}
@@ -150,6 +154,7 @@ export default function App() {
               ref={headingRef}
               section={section}
               data={exam}
+              mode={exam.mode}
               reducedMotion={reducedMotion}
               onAnswer={exam.setAnswer}
               onQNote={exam.setQNote}

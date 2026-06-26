@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
-import type { ExamData, Section } from "../types";
+import type { ExamData, ExamMode, Section } from "../types";
 import { GROUP_ORDER } from "../content/sections";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { sectionStat } from "../utils/sectionStats";
+import { ModeToggle } from "./ModeToggle";
 
 interface Props {
   open: boolean;
@@ -12,6 +13,8 @@ interface Props {
   currentIndex: number;
   onJump: (index: number) => void;
   data: ExamData;
+  mode: ExamMode;
+  onModeChange: (mode: ExamMode) => void;
   markedCount: number;
 }
 
@@ -22,6 +25,8 @@ export function Drawer({
   currentIndex,
   onJump,
   data,
+  mode,
+  onModeChange,
   markedCount,
 }: Props) {
   const ref = useFocusTrap<HTMLElement>(open, onClose);
@@ -51,6 +56,10 @@ export function Drawer({
           </button>
         </div>
         <div className="drawer-body">
+          <div className="drawer-mode">
+            <span className="drawer-mode-label">Perguntas</span>
+            <ModeToggle mode={mode} onChange={onModeChange} size="sm" />
+          </div>
           {GROUP_ORDER.map((group) => (
             <div key={group}>
               <div className="group-label">{group}</div>
@@ -63,7 +72,7 @@ export function Drawer({
                     aria-current={i === currentIndex ? "true" : undefined}
                   >
                     <span className="nav-label">{s.label}</span>
-                    {renderStat(s, data)}
+                    {renderStat(s, data, mode)}
                   </button>
                 ) : null,
               )}
@@ -82,8 +91,8 @@ export function Drawer({
   );
 }
 
-function renderStat(section: Section, data: ExamData) {
-  const stat = sectionStat(section, data);
+function renderStat(section: Section, data: ExamData, mode: ExamMode) {
+  const stat = sectionStat(section, data, mode);
   if (!stat) return null;
   return (
     <>

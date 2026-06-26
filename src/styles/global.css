@@ -835,6 +835,107 @@ textarea.notes::placeholder {
   box-shadow: var(--focus-ring);
 }
 
+/* ---- Seletor Resumido / Detalhado ---- */
+.mode-pick {
+  text-align: center;
+  margin: 6px auto 22px;
+}
+.mode-pick-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.22rem;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.mode-pick-desc {
+  margin: 12px auto 0;
+  max-width: 40ch;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+.mode-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0 auto;
+  background: var(--parchment-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  isolation: isolate;
+}
+.mode-toggle.lg {
+  max-width: 360px;
+  padding: 5px;
+}
+.mode-toggle.sm {
+  width: 100%;
+  padding: 3px;
+}
+.mode-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--navy), var(--navy-deep));
+  box-shadow: 0 4px 12px rgba(26, 35, 64, 0.25);
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.mode-toggle.sm .mode-thumb {
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+}
+.mode-toggle.is-detalhado .mode-thumb {
+  transform: translateX(100%);
+}
+.mode-opt {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  transition: color 0.2s;
+}
+.mode-toggle.lg .mode-opt {
+  padding: 12px 10px;
+  font-size: 1.08rem;
+}
+.mode-toggle.sm .mode-opt {
+  padding: 8px 8px;
+  font-size: 0.9rem;
+}
+.mode-opt.on {
+  color: #f4ecd8;
+}
+
+.drawer-mode {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 14px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+.drawer-mode-label {
+  font-family: var(--font-serif);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  flex: none;
+}
+
 /* ---- Review ---- */
 .review-intro {
   text-align: center;
