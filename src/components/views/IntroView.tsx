@@ -1,15 +1,19 @@
 import { forwardRef } from "react";
 import { ChevronRight } from "lucide-react";
+import type { ExamMode } from "../../types";
 import { SaveToggle } from "../SaveToggle";
+import { ModeToggle } from "../ModeToggle";
 
 interface Props {
   persist: boolean;
   onPersistChange: (on: boolean) => void;
+  mode: ExamMode;
+  onModeChange: (mode: ExamMode) => void;
   onStart: () => void;
 }
 
 export const IntroView = forwardRef<HTMLHeadingElement, Props>(
-  function IntroView({ persist, onPersistChange, onStart }, ref) {
+  function IntroView({ persist, onPersistChange, mode, onModeChange, onStart }, ref) {
     return (
       <div>
         <div className="fleuron" aria-hidden="true">
@@ -25,6 +29,16 @@ export const IntroView = forwardRef<HTMLHeadingElement, Props>(
           Santuário Basílica Sagrada Família — Goiânia
         </p>
         <div className="rule" aria-hidden="true" />
+
+        <div className="mode-pick">
+          <div className="mode-pick-title">Como deseja fazer o exame?</div>
+          <ModeToggle mode={mode} onChange={onModeChange} size="lg" />
+          <p className="mode-pick-desc">
+            {mode === "resumido"
+              ? "Resumido: as perguntas essenciais, para uma confissão mais breve."
+              : "Detalhado: todas as perguntas, para um exame mais profundo."}
+          </p>
+        </div>
 
         <p className="lead first">
           Faça este exame com calma e confiança na misericórdia de Deus, sem

@@ -17,8 +17,6 @@ export default defineConfig({
           "Exame de Consciência para uma boa confissão — Santuário Basílica Sagrada Família",
         lang: "pt-BR",
         dir: "ltr",
-        start_url: "/",
-        scope: "/",
         display: "standalone",
         orientation: "portrait",
         background_color: "#f4ecd8",
