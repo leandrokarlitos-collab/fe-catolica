@@ -114,6 +114,11 @@ export const SECTIONS: Section[] = [
         text: "Acreditei nas “energias”, nas ideias da Nova Era, na reencarnação, no Reiki, ou em coisas semelhantes?",
         countable: false,
       },
+      "Tive vergonha de me mostrar católico ou de demonstrar a minha fé diante dos outros?",
+      {
+        text: "Fui negligente na oração e na vida espiritual por preguiça (acédia)?",
+        countable: false,
+      },
     ],
   },
   {
@@ -148,6 +153,8 @@ export const SECTIONS: Section[] = [
         text: "Não dediquei nesses dias mais tempo a Deus, à família, aos pobres, aos doentes e ao descanso?",
         countable: false,
       },
+      "Distraí-me voluntariamente na Missa, por exemplo com o celular?",
+      "Saí da Missa antes do fim sem motivo justo?",
     ],
   },
   {
@@ -205,6 +212,14 @@ export const SECTIONS: Section[] = [
         text: "Obedeci às justas determinações das autoridades civis?",
         flag: "nao",
       },
+      {
+        text: "Como cidadão, omiti-me do bem comum, por exemplo deixando de votar com consciência ou de participar da vida social?",
+        countable: false,
+      },
+      {
+        text: "Deixei-me absorver pelo trabalho ou pelas telas, descuidando da presença com a minha família?",
+        countable: false,
+      },
     ],
   },
   {
@@ -239,6 +254,10 @@ export const SECTIONS: Section[] = [
       "Escandalizei o próximo, incitando-o a pecar, com as minhas conversas, o meu modo de vestir, ou convidando-o a praticar alguma má ação?",
       { text: "Visto-me com decência?", flag: "nao" },
       { text: "Procurei reparar o mal que causei pelo escândalo?", flag: "nao" },
+      { text: "Apoiei ou defendi a eutanásia?", countable: false },
+      "Tratei alguém com desprezo por sua raça, condição ou origem?",
+      "Humilhei ou pratiquei bullying contra alguém, inclusive pela internet?",
+      { text: "Descuidei gravemente da minha saúde?", countable: false },
     ],
   },
   {
@@ -281,6 +300,11 @@ export const SECTIONS: Section[] = [
       "Faltei à fidelidade conjugal por pensamentos ou por acções?",
       {
         text: "Mantenho amizades que são ocasião habitual deste pecado de infidelidade? Estou disposto(a) a abandoná-las?",
+        countable: false,
+      },
+      "Troquei mensagens, fotos ou conversas de conteúdo sexual (sexting)?",
+      {
+        text: "Cultivei relacionamentos virtuais afetivos impróprios?",
         countable: false,
       },
     ],
@@ -334,6 +358,11 @@ export const SECTIONS: Section[] = [
         text: "Sei aceitar, com espírito cristão, a carência de coisas necessárias ou deixo-me vencer pela ira ou pela revolta?",
         flag: "nao",
       },
+      "Dei ou recebi suborno, propina, ou participei de corrupção?",
+      {
+        text: "Fui indiferente aos pobres, deixando de socorrê-los conforme as minhas possibilidades?",
+        countable: false,
+      },
     ],
   },
   {
@@ -363,6 +392,12 @@ export const SECTIONS: Section[] = [
       "Semeei discórdias e inimizades com as minhas palavras?",
       "Exagerei os defeitos do próximo?",
       { text: "Gosto de ouvir falar mal do próximo?", countable: false },
+      "Compartilhei notícias falsas, boatos ou a vida alheia nas redes sociais?",
+      "Revelei um segredo ou confidência que devia guardar?",
+      {
+        text: "Deixei de defender a verdade ou a boa fama de alguém quando podia?",
+        countable: false,
+      },
     ],
   },
   {
