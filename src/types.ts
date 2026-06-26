@@ -34,15 +34,21 @@ export type Polarity = "sim" | "nao";
 
 /**
  * Uma pergunta do exame. Pode ser uma string (caso comum: a falta é responder
- * "Sim") ou um objeto quando:
+ * "Sim", e é um ato contável) ou um objeto quando:
  *  - a falta é responder "Não" (`flag: "nao"`), ex.: "Tenho rezado diariamente?";
- *  - é informativa/aberta (`open: true`), ex.: "Há quanto tempo não me confesso?",
- *    que não tem polaridade e mostra apenas um campo para anotar.
+ *  - não é um ato contável, mas um estado/disposição/omissão (`countable: false`),
+ *    ex.: "Guardo ódio no coração?" — não pede "quantas vezes";
+ *  - é informativa/aberta (`open: true`), com campo livre para anotar;
+ *  - é a pergunta "Há quanto tempo não me confesso?" (`since: true`), com
+ *    seletor numérico de tempo.
  */
 export interface QuestionItem {
   text: string;
   flag?: Polarity;
   open?: boolean;
+  since?: boolean;
+  /** Se a pergunta admite "quantas vezes". Default: atos respondidos com "Sim". */
+  countable?: boolean;
 }
 
 export type QuestionInput = string | QuestionItem;
@@ -51,12 +57,21 @@ export interface NormalizedQuestion {
   text: string;
   flag: Polarity;
   open: boolean;
+  since: boolean;
+  countable: boolean;
 }
 
 /** Normaliza uma pergunta para a forma completa usada pela UI e pela Revisão. */
 export function normalizeQuestion(q: QuestionInput): NormalizedQuestion {
-  if (typeof q === "string") return { text: q, flag: "sim", open: false };
-  return { text: q.text, flag: q.flag ?? "sim", open: q.open ?? false };
+  if (typeof q === "string") {
+    return { text: q, flag: "sim", open: false, since: false, countable: true };
+  }
+  const flag = q.flag ?? "sim";
+  const open = q.open ?? false;
+  const since = q.since ?? false;
+  // Por padrão, só atos cometidos (responder "Sim") pedem o número de vezes.
+  const countable = q.countable ?? (flag === "sim" && !open && !since);
+  return { text: q.text, flag, open, since, countable };
 }
 
 /** Seções com perguntas: exame inicial e mandamentos. */
@@ -88,10 +103,15 @@ export function isQuestionSection(s: Section): s is QuestionSection {
 export type Answer = "sim" | "nao" | "na";
 
 export interface ExamData {
-  /** chave `${sectionId}-${index}` -> "sim" | "nao" */
+  /** chave `${sectionId}-${index}` -> "sim" | "nao" | "na" */
   answers: Record<string, Answer>;
   /** chave `${sectionId}-${index}` -> anotação livre da pergunta */
   qnotes: Record<string, string>;
+  /**
+   * chave `${sectionId}-${index}` -> número de vezes ("3") ou "diversas".
+   * Vazio/ausente = não informado.
+   */
+  counts: Record<string, string>;
   /** chave `${sectionId}` -> anotação geral da seção */
   notes: Record<string, string>;
 }

@@ -1,10 +1,13 @@
 import type { ExamData, QuestionSection, Section } from "../types";
 import { isQuestionSection, normalizeQuestion } from "../types";
 import { ATO_CONTRICAO } from "../content/prayers";
+import { formatSince } from "./since";
 
 export interface ReviewItem {
   q: string;
   note: string;
+  /** Quantas vezes, já formatado (ex.: "3 vezes", "diversas vezes"). */
+  times: string;
 }
 
 export interface ReviewBlock {
@@ -13,28 +16,46 @@ export interface ReviewBlock {
   note: string;
 }
 
+/** Formata o número de vezes para exibição. "" quando não informado. */
+export function formatTimes(count: string): string {
+  if (!count) return "";
+  if (count === "diversas") return "diversas vezes";
+  const n = Number(count);
+  if (!n) return "";
+  return `${n} ${n === 1 ? "vez" : "vezes"}`;
+}
+
 /**
- * Uma pergunta entra na Revisão quando:
- *  - é aberta (`open`) e tem texto anotado; ou
- *  - a resposta dada é a "marcante" (igual ao `flag` da pergunta).
+ * Avalia uma pergunta. Entra na Revisão quando:
+ *  - é "há quanto tempo" (`since`) e foi informada; ou
+ *  - é aberta (`open`) e tem texto; ou
+ *  - a resposta dada é a "marcante" (igual ao `flag`).
  * "Não se aplica" nunca entra.
  */
-function isMarked(
+function evalQuestion(
   section: QuestionSection,
   index: number,
   data: ExamData,
-): { marked: boolean; note: string } {
+): { marked: boolean; item: ReviewItem } {
   const norm = normalizeQuestion(section.questions[index]);
   const key = `${section.id}-${index}`;
-  const note = (data.qnotes[key] ?? "").trim();
-  if (norm.open) return { marked: note.length > 0, note };
-  return { marked: data.answers[key] === norm.flag, note };
+  const raw = (data.qnotes[key] ?? "").trim();
+
+  if (norm.since) {
+    const note = formatSince(raw);
+    return { marked: note.length > 0, item: { q: norm.text, note, times: "" } };
+  }
+  if (norm.open) {
+    return { marked: raw.length > 0, item: { q: norm.text, note: raw, times: "" } };
+  }
+  const marked = data.answers[key] === norm.flag;
+  const times = norm.countable ? formatTimes(data.counts[key] ?? "") : "";
+  return { marked, item: { q: norm.text, note: raw, times } };
 }
 
 /**
  * Monta os blocos da Revisão: para cada seção de perguntas, as perguntas
- * marcadas (com sua anotação) e a anotação geral da seção. Seções sem nada
- * marcado são omitidas.
+ * marcadas (com anotação e número de vezes) e a anotação geral da seção.
  */
 export function buildReviewBlocks(
   sections: Section[],
@@ -44,9 +65,9 @@ export function buildReviewBlocks(
     .filter(isQuestionSection)
     .map((section) => {
       const items: ReviewItem[] = [];
-      section.questions.forEach((q, i) => {
-        const { marked, note } = isMarked(section, i, data);
-        if (marked) items.push({ q: normalizeQuestion(q).text, note });
+      section.questions.forEach((_, i) => {
+        const { marked, item } = evalQuestion(section, i, data);
+        if (marked) items.push(item);
       });
       const note = (data.notes[section.id] ?? "").trim();
       return { section, items, note };
@@ -60,7 +81,7 @@ export function countMarked(sections: Section[], data: ExamData): number {
   for (const section of sections) {
     if (!isQuestionSection(section)) continue;
     section.questions.forEach((_, i) => {
-      if (isMarked(section, i, data).marked) n += 1;
+      if (evalQuestion(section, i, data).marked) n += 1;
     });
   }
   return n;
@@ -77,7 +98,7 @@ export function buildReviewText(sections: Section[], data: ExamData): string {
     lines.push(section.ribbon.toUpperCase());
     if (section.precept) lines.push(section.precept);
     for (const it of items) {
-      lines.push("• " + it.q);
+      lines.push("• " + it.q + (it.times ? ` (${it.times})` : ""));
       if (it.note) lines.push("    — " + it.note);
     }
     if (note) lines.push("Outras anotações: " + note);

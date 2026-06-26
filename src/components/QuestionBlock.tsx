@@ -9,11 +9,15 @@ interface Props {
   flag: Polarity;
   /** Pergunta aberta: sem Sim/Não, apenas anotação. */
   open: boolean;
+  /** Admite "quantas vezes". */
+  countable: boolean;
   value: Answer | undefined;
   qnote: string;
+  count: string;
   reducedMotion: boolean;
   onAnswer: (value: Answer) => void;
   onQNote: (value: string) => void;
+  onCount: (value: string) => void;
 }
 
 export function QuestionBlock({
@@ -22,11 +26,14 @@ export function QuestionBlock({
   question,
   flag,
   open,
+  countable,
   value,
   qnote,
+  count,
   reducedMotion,
   onAnswer,
   onQNote,
+  onCount,
 }: Props) {
   const noteId = `${id}-note`;
   // Pergunta marcada (matéria a confessar): aberta com texto, ou resposta = flag.
@@ -70,6 +77,10 @@ export function QuestionBlock({
           </div>
         )}
 
+        {isMarked && countable && (
+          <TimesControl id={id} count={count} onCount={onCount} />
+        )}
+
         {(open || isMarked) && (
           <div className="qnote-wrap">
             <label className="qnote-label" htmlFor={noteId}>
@@ -83,13 +94,58 @@ export function QuestionBlock({
               placeholder={
                 open
                   ? "Escreva aqui o que deseja registrar…"
-                  : "O que deseja dizer ao confessor? (ex.: circunstâncias, número de vezes…)"
+                  : "O que deseja dizer ao confessor? (ex.: circunstâncias…)"
               }
             />
           </div>
         )}
       </div>
     </li>
+  );
+}
+
+interface TimesProps {
+  id: string;
+  count: string;
+  onCount: (value: string) => void;
+}
+
+/** Controle "Quantas vezes?": número ou "Diversas vezes" (incontáveis). */
+function TimesControl({ id, count, onCount }: TimesProps) {
+  const numId = `${id}-times`;
+  const diverse = count === "diversas";
+
+  const setNumber = (v: string) => {
+    const clean = v.replace(/\D/g, "");
+    onCount(clean);
+  };
+
+  return (
+    <div className="times">
+      <label className="times-label" htmlFor={numId}>
+        Quantas vezes?
+      </label>
+      <input
+        id={numId}
+        className="times-input"
+        type="number"
+        min={1}
+        inputMode="numeric"
+        placeholder="0"
+        value={diverse ? "" : count}
+        disabled={diverse}
+        onChange={(e) => setNumber(e.target.value)}
+      />
+      <button
+        type="button"
+        className={`times-diverse${diverse ? " on" : ""}`}
+        onClick={() => onCount(diverse ? "" : "diversas")}
+        aria-pressed={diverse}
+      >
+        {diverse && <Check size={13} strokeWidth={3} aria-hidden="true" />}
+        Diversas vezes
+      </button>
+    </div>
   );
 }
 

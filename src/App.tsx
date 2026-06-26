@@ -23,10 +23,10 @@ export default function App() {
   const exam = useExamState();
   const reducedMotion = useReducedMotion();
 
-  const { answers, qnotes, notes } = exam;
+  const { answers, qnotes, counts, notes } = exam;
   const markedCount = useMemo(
-    () => countMarked(SECTIONS, { answers, qnotes, notes }),
-    [answers, qnotes, notes],
+    () => countMarked(SECTIONS, { answers, qnotes, counts, notes }),
+    [answers, qnotes, counts, notes],
   );
 
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -153,6 +153,7 @@ export default function App() {
               reducedMotion={reducedMotion}
               onAnswer={exam.setAnswer}
               onQNote={exam.setQNote}
+              onCount={exam.setCount}
               onNote={exam.setNote}
             />
           )}

@@ -61,14 +61,30 @@ describe("App", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("mostra campo para anotar em pergunta aberta (Há quanto tempo…)", async () => {
+  it("mostra controle de tempo em 'Há quanto tempo não me confesso?'", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /Abrir índice/i }));
     const nav = screen.getByRole("navigation", { name: /Índice do exame/i });
     await user.click(within(nav).getByRole("button", { name: /Exame Inicial/i }));
     expect(
-      screen.getByPlaceholderText(/Escreva aqui o que deseja registrar/i),
+      screen.getByRole("button", { name: /Primeira confissão/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Unidade de tempo/i)).toBeInTheDocument();
+  });
+
+  it("oferece 'Quantas vezes?' ao marcar um ato contável", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /Abrir índice/i }));
+    const nav = screen.getByRole("navigation", { name: /Índice do exame/i });
+    await user.click(within(nav).getByRole("button", { name: /Exame Inicial/i }));
+
+    // 1ª pergunta com botões: "Escondi…" (ato contável, polaridade Sim).
+    await user.click(screen.getAllByRole("button", { name: "Sim" })[0]);
+    expect(screen.getByText(/Quantas vezes\?/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Diversas vezes/i }),
     ).toBeInTheDocument();
   });
 });

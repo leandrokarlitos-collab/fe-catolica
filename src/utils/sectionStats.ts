@@ -20,7 +20,7 @@ export function sectionStat(section: Section, data: ExamData): SectionStat | nul
     const norm = normalizeQuestion(q);
     const key = `${section.id}-${i}`;
     const note = (data.qnotes[key] ?? "").trim();
-    if (norm.open) {
+    if (norm.open || norm.since) {
       if (note) {
         answered += 1;
         hasContent = true;

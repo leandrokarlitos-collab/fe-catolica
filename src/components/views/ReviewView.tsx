@@ -61,6 +61,7 @@ export const ReviewView = forwardRef<HTMLHeadingElement, Props>(
                   {items.map((it, i) => (
                     <li key={i}>
                       {it.q}
+                      {it.times && <span className="rev-times">{it.times}</span>}
                       {it.note && <div className="rev-subnote">{it.note}</div>}
                     </li>
                   ))}

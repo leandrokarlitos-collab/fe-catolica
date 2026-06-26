@@ -16,7 +16,7 @@ const STORAGE_VERSION = "v1";
 const DATA_KEY = `exame-consciencia:${STORAGE_VERSION}`;
 const PERSIST_FLAG_KEY = `exame-consciencia:persist:${STORAGE_VERSION}`;
 
-const EMPTY: ExamData = { answers: {}, qnotes: {}, notes: {} };
+const EMPTY: ExamData = { answers: {}, qnotes: {}, counts: {}, notes: {} };
 
 function safeGetItem(key: string): string | null {
   try {
@@ -54,6 +54,7 @@ function loadData(): ExamData {
     return {
       answers: parsed.answers ?? {},
       qnotes: parsed.qnotes ?? {},
+      counts: parsed.counts ?? {},
       notes: parsed.notes ?? {},
     };
   } catch {
@@ -68,6 +69,7 @@ export interface ExamState extends ExamData {
   /** Define/alterna resposta. Tocar na escolha já ativa limpa (volta a indefinido). */
   setAnswer: (key: string, value: Answer) => void;
   setQNote: (key: string, value: string) => void;
+  setCount: (key: string, value: string) => void;
   setNote: (sectionId: string, value: string) => void;
   clearAll: () => void;
 }
@@ -121,6 +123,10 @@ export function useExamState(): ExamState {
     setData((d) => ({ ...d, qnotes: { ...d.qnotes, [key]: value } }));
   }, []);
 
+  const setCount = useCallback((key: string, value: string) => {
+    setData((d) => ({ ...d, counts: { ...d.counts, [key]: value } }));
+  }, []);
+
   const setNote = useCallback((sectionId: string, value: string) => {
     setData((d) => ({ ...d, notes: { ...d.notes, [sectionId]: value } }));
   }, []);
@@ -136,6 +142,7 @@ export function useExamState(): ExamState {
     setPersist,
     setAnswer,
     setQNote,
+    setCount,
     setNote,
     clearAll,
   };
