@@ -73,7 +73,9 @@ export function Drawer({
         <div className="drawer-foot">
           ✠ Nada é salvo nem enviado por padrão. Suas anotações ficam só neste
           aparelho.
-          {markedCount > 0 ? ` · ${markedCount} ponto(s) marcado(s) com “Sim”.` : ""}
+          {markedCount > 0
+            ? ` · ${markedCount} ponto(s) para a confissão.`
+            : ""}
         </div>
       </nav>
     </>

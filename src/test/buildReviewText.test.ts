@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { ExamData } from "../types";
 import { SECTIONS } from "../content/sections";
-import { buildReviewBlocks, buildReviewText } from "../utils/buildReviewText";
+import {
+  buildReviewBlocks,
+  buildReviewText,
+  countMarked,
+} from "../utils/buildReviewText";
 
 const empty: ExamData = { answers: {}, qnotes: {}, notes: {} };
 
@@ -10,7 +14,8 @@ describe("buildReviewBlocks", () => {
     expect(buildReviewBlocks(SECTIONS, empty)).toEqual([]);
   });
 
-  it("inclui apenas perguntas marcadas com 'sim'", () => {
+  it("marca pergunta de polaridade 'sim' quando respondida 'sim'", () => {
+    // mand-2-0 é uma pergunta comum (falta = responder Sim).
     const data: ExamData = {
       answers: { "mand-2-0": "sim", "mand-2-1": "nao" },
       qnotes: {},
@@ -22,7 +27,44 @@ describe("buildReviewBlocks", () => {
     expect(blocks[0].items).toHaveLength(1);
   });
 
-  it("inclui anexa a anotação da pergunta e a nota geral da seção", () => {
+  it("marca pergunta de polaridade 'não' quando respondida 'não'", () => {
+    // mand-1-9 = "Tenho rezado diariamente?" (falta = responder Não).
+    const simData: ExamData = {
+      answers: { "mand-1-9": "sim" },
+      qnotes: {},
+      notes: {},
+    };
+    const naoData: ExamData = {
+      answers: { "mand-1-9": "nao" },
+      qnotes: {},
+      notes: {},
+    };
+    expect(buildReviewBlocks(SECTIONS, simData)).toHaveLength(0);
+    expect(buildReviewBlocks(SECTIONS, naoData)).toHaveLength(1);
+  });
+
+  it("'não se aplica' nunca gera ponto", () => {
+    const data: ExamData = {
+      answers: { "mand-2-0": "na", "mand-1-9": "na" },
+      qnotes: {},
+      notes: {},
+    };
+    expect(buildReviewBlocks(SECTIONS, data)).toHaveLength(0);
+  });
+
+  it("pergunta aberta entra na revisão quando tem texto", () => {
+    // exame-inicial-0 = "Há quanto tempo não me confesso?" (aberta).
+    const data: ExamData = {
+      answers: {},
+      qnotes: { "exame-inicial-0": "uns dois anos" },
+      notes: {},
+    };
+    const blocks = buildReviewBlocks(SECTIONS, data);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].items[0].note).toBe("uns dois anos");
+  });
+
+  it("anexa anotação da pergunta e a nota geral da seção", () => {
     const data: ExamData = {
       answers: { "mand-3-0": "sim" },
       qnotes: { "mand-3-0": "três vezes" },
@@ -32,24 +74,24 @@ describe("buildReviewBlocks", () => {
     expect(block.items[0].note).toBe("três vezes");
     expect(block.note).toBe("reflexão geral");
   });
+});
 
-  it("inclui seção que só tem nota geral, sem perguntas marcadas", () => {
+describe("countMarked", () => {
+  it("conta pontos de polaridades diferentes", () => {
     const data: ExamData = {
-      answers: {},
-      qnotes: {},
-      notes: { "mand-5": "algo a dizer" },
+      answers: { "mand-2-0": "sim", "mand-1-9": "nao", "mand-2-1": "na" },
+      qnotes: { "exame-inicial-0": "um ano" },
+      notes: {},
     };
-    const blocks = buildReviewBlocks(SECTIONS, data);
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0].items).toHaveLength(0);
-    expect(blocks[0].note).toBe("algo a dizer");
+    // sim marcante + nao marcante + aberta com texto = 3 (na não conta).
+    expect(countMarked(SECTIONS, data)).toBe(3);
   });
 });
 
 describe("buildReviewText", () => {
   it("mensagem padrão quando nada marcado", () => {
     expect(buildReviewText(SECTIONS, empty)).toBe(
-      "Nenhum ponto foi marcado com “Sim”.",
+      "Nenhum ponto foi marcado para a confissão.",
     );
   });
 

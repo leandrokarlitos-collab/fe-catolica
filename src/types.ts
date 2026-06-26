@@ -29,12 +29,42 @@ export interface PrayerSection extends SectionBase {
   coda?: string;
 }
 
+/** Qual resposta indica matéria a levar à confissão (abre anotação + entra na Revisão). */
+export type Polarity = "sim" | "nao";
+
+/**
+ * Uma pergunta do exame. Pode ser uma string (caso comum: a falta é responder
+ * "Sim") ou um objeto quando:
+ *  - a falta é responder "Não" (`flag: "nao"`), ex.: "Tenho rezado diariamente?";
+ *  - é informativa/aberta (`open: true`), ex.: "Há quanto tempo não me confesso?",
+ *    que não tem polaridade e mostra apenas um campo para anotar.
+ */
+export interface QuestionItem {
+  text: string;
+  flag?: Polarity;
+  open?: boolean;
+}
+
+export type QuestionInput = string | QuestionItem;
+
+export interface NormalizedQuestion {
+  text: string;
+  flag: Polarity;
+  open: boolean;
+}
+
+/** Normaliza uma pergunta para a forma completa usada pela UI e pela Revisão. */
+export function normalizeQuestion(q: QuestionInput): NormalizedQuestion {
+  if (typeof q === "string") return { text: q, flag: "sim", open: false };
+  return { text: q.text, flag: q.flag ?? "sim", open: q.open ?? false };
+}
+
 /** Seções com perguntas: exame inicial e mandamentos. */
 export interface QuestionSection extends SectionBase {
   kind: "exam" | "commandment";
   ribbon: string;
   precept: string;
-  questions: string[];
+  questions: QuestionInput[];
 }
 
 export interface ReviewSection extends SectionBase {
@@ -55,7 +85,7 @@ export function isQuestionSection(s: Section): s is QuestionSection {
 }
 
 /** Resposta a uma pergunta. Ausência da chave = não respondida. */
-export type Answer = "sim" | "nao";
+export type Answer = "sim" | "nao" | "na";
 
 export interface ExamData {
   /** chave `${sectionId}-${index}` -> "sim" | "nao" */

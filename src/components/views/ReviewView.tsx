@@ -45,7 +45,8 @@ export const ReviewView = forwardRef<HTMLHeadingElement, Props>(
 
         {blocks.length === 0 ? (
           <div className="empty">
-            Você ainda não respondeu “Sim” a nenhuma pergunta nem escreveu anotações.
+            Você ainda não marcou nenhum ponto para a confissão nem escreveu
+            anotações.
             <br />
             Volte às seções, leia as perguntas com calma e responda o que desejar
             levar à confissão.
@@ -109,7 +110,7 @@ export const ReviewView = forwardRef<HTMLHeadingElement, Props>(
               Depois da confissão, você pode usar <em>Apagar tudo</em> com
               tranquilidade.
               {markedCount > 0
-                ? ` ${markedCount} ponto(s) marcado(s) com “Sim”.`
+                ? ` ${markedCount} ponto(s) marcado(s) para a confissão.`
                 : ""}
             </div>
           </div>

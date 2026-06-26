@@ -35,17 +35,40 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("marcar 'Sim' abre o campo de anotação da pergunta", async () => {
+  it("marcar a resposta relevante abre o campo de anotação", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /Abrir índice/i }));
     const nav = screen.getByRole("navigation", { name: /Índice do exame/i });
     await user.click(within(nav).getByRole("button", { name: /Exame Inicial/i }));
 
+    // A 1ª pergunta com botões ("Escondi…") tem polaridade Sim.
     const simButtons = screen.getAllByRole("button", { name: "Sim" });
     await user.click(simButtons[0]);
     expect(
       screen.getByPlaceholderText(/O que deseja dizer ao confessor/i),
+    ).toBeInTheDocument();
+  });
+
+  it("oferece o botão 'Não se aplica' nas perguntas", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /Abrir índice/i }));
+    const nav = screen.getByRole("navigation", { name: /Índice do exame/i });
+    await user.click(within(nav).getByRole("button", { name: /Exame Inicial/i }));
+    expect(
+      screen.getAllByRole("button", { name: "Não se aplica" }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("mostra campo para anotar em pergunta aberta (Há quanto tempo…)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /Abrir índice/i }));
+    const nav = screen.getByRole("navigation", { name: /Índice do exame/i });
+    await user.click(within(nav).getByRole("button", { name: /Exame Inicial/i }));
+    expect(
+      screen.getByPlaceholderText(/Escreva aqui o que deseja registrar/i),
     ).toBeInTheDocument();
   });
 });

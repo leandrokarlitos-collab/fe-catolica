@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import type { Answer, ExamData, QuestionSection } from "../../types";
+import { normalizeQuestion } from "../../types";
 import { SectionHeader } from "../SectionHeader";
 import { QuestionBlock } from "../QuestionBlock";
 
@@ -17,18 +18,23 @@ export const ExamView = forwardRef<HTMLHeadingElement, Props>(
     { section, data, reducedMotion, onAnswer, onQNote, onNote },
     ref,
   ) {
-    const answered = section.questions.filter(
-      (_, i) => data.answers[`${section.id}-${i}`],
-    ).length;
+    const answered = section.questions.filter((q, i) => {
+      const norm = normalizeQuestion(q);
+      const key = `${section.id}-${i}`;
+      return norm.open
+        ? (data.qnotes[key] ?? "").trim().length > 0
+        : Boolean(data.answers[key]);
+    }).length;
     const noteId = `${section.id}-section-note`;
 
     return (
       <div>
         <SectionHeader ref={ref} ribbon={section.ribbon} precept={section.precept} />
         <p className="qhint">
-          Leia cada pergunta com calma, na presença de Deus. Responda <em>Sim</em> ou{" "}
-          <em>Não</em>; ao marcar <em>Sim</em>, abre-se um espaço para escrever o que
-          desejar levar à confissão.
+          Leia cada pergunta com calma, na presença de Deus. Responda{" "}
+          <em>Sim</em>, <em>Não</em> ou <em>Não se aplica</em>. Quando a resposta
+          indicar algo a confessar, abre-se um espaço para escrever o que desejar
+          levar ao confessionário.
         </p>
         <p className="section-progress" aria-live="polite">
           {answered} de {section.questions.length} respondidas
@@ -36,13 +42,16 @@ export const ExamView = forwardRef<HTMLHeadingElement, Props>(
 
         <ul className="qlist">
           {section.questions.map((q, i) => {
+            const norm = normalizeQuestion(q);
             const key = `${section.id}-${i}`;
             return (
               <QuestionBlock
                 key={key}
                 id={key}
                 index={i}
-                question={q}
+                question={norm.text}
+                flag={norm.flag}
+                open={norm.open}
                 value={data.answers[key]}
                 qnote={data.qnotes[key] ?? ""}
                 reducedMotion={reducedMotion}

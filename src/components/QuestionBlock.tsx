@@ -1,10 +1,14 @@
 import { Check } from "lucide-react";
-import type { Answer } from "../types";
+import type { Answer, Polarity } from "../types";
 
 interface Props {
   id: string;
   index: number;
   question: string;
+  /** Resposta que indica matéria a levar à confissão. */
+  flag: Polarity;
+  /** Pergunta aberta: sem Sim/Não, apenas anotação. */
+  open: boolean;
   value: Answer | undefined;
   qnote: string;
   reducedMotion: boolean;
@@ -16,6 +20,8 @@ export function QuestionBlock({
   id,
   index,
   question,
+  flag,
+  open,
   value,
   qnote,
   reducedMotion,
@@ -23,10 +29,13 @@ export function QuestionBlock({
   onQNote,
 }: Props) {
   const noteId = `${id}-note`;
+  // Pergunta marcada (matéria a confessar): aberta com texto, ou resposta = flag.
+  const isMarked = open ? qnote.trim().length > 0 : value === flag;
+
   return (
     <li>
       <div
-        className={`qblock${value === "sim" ? " sim" : ""}`}
+        className={`qblock${isMarked ? " marked" : ""}`}
         style={
           reducedMotion
             ? undefined
@@ -34,38 +43,74 @@ export function QuestionBlock({
         }
       >
         <p className="qtext">{question}</p>
-        <div className="qa" role="group" aria-label="Resposta">
-          <button
-            className={`qbtn sim${value === "sim" ? " on" : ""}`}
-            onClick={() => onAnswer("sim")}
-            aria-pressed={value === "sim"}
-          >
-            {value === "sim" && <Check size={14} strokeWidth={3} aria-hidden="true" />}
-            Sim
-          </button>
-          <button
-            className={`qbtn nao${value === "nao" ? " on" : ""}`}
-            onClick={() => onAnswer("nao")}
-            aria-pressed={value === "nao"}
-          >
-            Não
-          </button>
-        </div>
-        {value === "sim" && (
+
+        {!open && (
+          <div className="qa" role="group" aria-label="Resposta">
+            <AnswerButton
+              kind="sim"
+              label="Sim"
+              active={value === "sim"}
+              marking={flag === "sim"}
+              onClick={() => onAnswer("sim")}
+            />
+            <AnswerButton
+              kind="nao"
+              label="Não"
+              active={value === "nao"}
+              marking={flag === "nao"}
+              onClick={() => onAnswer("nao")}
+            />
+            <AnswerButton
+              kind="na"
+              label="Não se aplica"
+              active={value === "na"}
+              marking={false}
+              onClick={() => onAnswer("na")}
+            />
+          </div>
+        )}
+
+        {(open || isMarked) && (
           <div className="qnote-wrap">
             <label className="qnote-label" htmlFor={noteId}>
-              Escrever (opcional)
+              {open ? "Anotar" : "Escrever (opcional)"}
             </label>
             <textarea
               id={noteId}
               className="qnote"
               value={qnote}
               onChange={(e) => onQNote(e.target.value)}
-              placeholder="O que deseja dizer ao confessor? (ex.: circunstâncias, número de vezes…)"
+              placeholder={
+                open
+                  ? "Escreva aqui o que deseja registrar…"
+                  : "O que deseja dizer ao confessor? (ex.: circunstâncias, número de vezes…)"
+              }
             />
           </div>
         )}
       </div>
     </li>
+  );
+}
+
+interface AnswerButtonProps {
+  kind: "sim" | "nao" | "na";
+  label: string;
+  active: boolean;
+  /** Esta resposta é a que indica matéria a confessar. */
+  marking: boolean;
+  onClick: () => void;
+}
+
+function AnswerButton({ kind, label, active, marking, onClick }: AnswerButtonProps) {
+  return (
+    <button
+      className={`qbtn ${kind}${active ? " on" : ""}`}
+      onClick={onClick}
+      aria-pressed={active}
+    >
+      {active && marking && <Check size={14} strokeWidth={3} aria-hidden="true" />}
+      {label}
+    </button>
   );
 }

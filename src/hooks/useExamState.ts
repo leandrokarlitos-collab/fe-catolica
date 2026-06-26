@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Answer, ExamData } from "../types";
 
 /**
@@ -70,8 +70,6 @@ export interface ExamState extends ExamData {
   setQNote: (key: string, value: string) => void;
   setNote: (sectionId: string, value: string) => void;
   clearAll: () => void;
-  /** Total de perguntas marcadas com "sim". */
-  markedCount: number;
 }
 
 export function useExamState(): ExamState {
@@ -132,11 +130,6 @@ export function useExamState(): ExamState {
     safeRemoveItem(DATA_KEY);
   }, []);
 
-  const markedCount = useMemo(
-    () => Object.values(data.answers).filter((v) => v === "sim").length,
-    [data.answers],
-  );
-
   return {
     ...data,
     persist,
@@ -145,6 +138,5 @@ export function useExamState(): ExamState {
     setQNote,
     setNote,
     clearAll,
-    markedCount,
   };
 }

@@ -339,7 +339,7 @@
   transition: background 0.18s;
   animation: fadeUp 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.qblock.sim {
+.qblock.marked {
   background: var(--mark);
 }
 .qtext {
@@ -349,7 +349,7 @@
   color: var(--ink);
   margin: 0;
 }
-.qblock.sim .qtext {
+.qblock.marked .qtext {
   color: var(--navy);
 }
 .qa {
@@ -393,6 +393,11 @@
   background: rgba(111, 122, 82, 0.14);
   border-color: var(--sage);
   color: var(--sage-deep);
+}
+.qbtn.na.on {
+  background: rgba(106, 93, 71, 0.12);
+  border-color: var(--ink-soft);
+  color: var(--ink-soft);
 }
 .qnote-wrap {
   margin-top: 12px;

@@ -11,26 +11,24 @@ describe("useExamState", () => {
     const { result } = renderHook(() => useExamState());
     expect(result.current.answers).toEqual({});
     expect(result.current.persist).toBe(false);
-    expect(result.current.markedCount).toBe(0);
   });
 
   it("define resposta e tocar de novo na mesma escolha limpa", () => {
     const { result } = renderHook(() => useExamState());
     act(() => result.current.setAnswer("mand-1-0", "sim"));
     expect(result.current.answers["mand-1-0"]).toBe("sim");
-    expect(result.current.markedCount).toBe(1);
 
     act(() => result.current.setAnswer("mand-1-0", "sim"));
     expect(result.current.answers["mand-1-0"]).toBeUndefined();
-    expect(result.current.markedCount).toBe(0);
   });
 
-  it("trocar de 'sim' para 'nao' atualiza e zera contagem de sim", () => {
+  it("alterna entre sim, não e não se aplica", () => {
     const { result } = renderHook(() => useExamState());
     act(() => result.current.setAnswer("mand-1-0", "sim"));
     act(() => result.current.setAnswer("mand-1-0", "nao"));
     expect(result.current.answers["mand-1-0"]).toBe("nao");
-    expect(result.current.markedCount).toBe(0);
+    act(() => result.current.setAnswer("mand-1-0", "na"));
+    expect(result.current.answers["mand-1-0"]).toBe("na");
   });
 
   it("persiste em localStorage quando ligado e limpa ao desligar", () => {

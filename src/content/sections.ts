@@ -4,8 +4,14 @@ import { ORACAO_INICIAL, ATO_CONTRICAO, ORACAO_AGRADECIMENTO } from "./prayers";
 /**
  * Estrutura completa do exame de consciência.
  *
- * Editar/adicionar mandamentos ou perguntas é só editar estes dados — nenhuma
- * mudança de UI é necessária. A ordem do array define a ordem de navegação.
+ * Cada pergunta é uma string (quando a falta é responder "Sim") ou um objeto:
+ *  - `{ text, flag: "nao" }` quando a falta é responder "Não"
+ *    (perguntas formuladas de modo positivo, ex.: "Tenho rezado diariamente?");
+ *  - `{ text, open: true }` para perguntas informativas/abertas, que mostram
+ *    apenas um campo para anotar (ex.: "Há quanto tempo não me confesso?").
+ *
+ * A opção "Não se aplica" está disponível em todas as perguntas e nunca gera
+ * ponto para a confissão. Editar perguntas é só editar estes dados.
  */
 export const SECTIONS: Section[] = [
   {
@@ -30,15 +36,27 @@ export const SECTIONS: Section[] = [
     ribbon: "Exame Inicial",
     precept: "Antes de percorrer os mandamentos",
     questions: [
-      "Há quanto tempo não me confesso?",
+      { text: "Há quanto tempo não me confesso?", open: true },
       "Escondi, conscientemente, algum pecado grave em alguma confissão precedente?",
-      "Confessei, o melhor que me lembro, o número de vezes que cometi cada pecado grave?",
-      "Confessei com clareza os meus pecados ou fui demasiado genérico?",
-      "Fiz a penitência que me foi imposta?",
-      "Reparei as injustiças que cometi?",
+      {
+        text: "Confessei, o melhor que me lembro, o número de vezes que cometi cada pecado grave?",
+        flag: "nao",
+      },
+      {
+        text: "Confessei com clareza os meus pecados ou fui demasiado genérico?",
+        flag: "nao",
+      },
+      { text: "Fiz a penitência que me foi imposta?", flag: "nao" },
+      { text: "Reparei as injustiças que cometi?", flag: "nao" },
       "Comunguei em pecado mortal?",
-      "Respeitei o jejum eucarístico de uma hora antes da comunhão?",
-      "Estou verdadeiramente arrependido dos meus pecados e luto para não pecar mais?",
+      {
+        text: "Respeitei o jejum eucarístico de uma hora antes da comunhão?",
+        flag: "nao",
+      },
+      {
+        text: "Estou verdadeiramente arrependido dos meus pecados e luto para não pecar mais?",
+        flag: "nao",
+      },
     ],
   },
   {
@@ -58,10 +76,13 @@ export const SECTIONS: Section[] = [
       "Esperei a vida eterna confiando apenas nos meus esforços?",
       "Cometi pecados no intuito de confessá-los mais tarde?",
       "Tenho posto em dúvida ou negado, deliberadamente, alguma verdade revelada por Deus e como tal ensinada pela Igreja?",
-      "Tenho rezado diariamente com atenção e devoção?",
+      { text: "Tenho rezado diariamente com atenção e devoção?", flag: "nao" },
       "Frequentei os sacramentos de má vontade?",
-      "Leio e medito, com frequência, na Palavra de Deus?",
-      "Procuro formar-me na fé com a ajuda do Catecismo da Igreja Católica?",
+      { text: "Leio e medito, com frequência, na Palavra de Deus?", flag: "nao" },
+      {
+        text: "Procuro formar-me na fé com a ajuda do Catecismo da Igreja Católica?",
+        flag: "nao",
+      },
       "Defendi, por exemplo, que nós podemos só confessar diretamente a Deus, ou que o “casamento” civil entre batizados é aceitável em certos casos, ou que todas as religiões são iguais?",
       "Li alguma coisa, ouvi alguma música, ou vi algum programa contra Deus, contra a Igreja ou contra os bons costumes?",
       "Recebi indignamente algum sacramento?",
@@ -116,29 +137,50 @@ export const SECTIONS: Section[] = [
     ribbon: "4º Mandamento",
     precept: "Honrar pai e mãe e os outros legítimos superiores",
     questions: [
-      "Obedeci aos meus pais enquanto estive sob a sua tutela?",
-      "Manifesto-lhes o devido amor, gratidão e respeito?",
-      "Ajudo-os espiritual e materialmente?",
+      { text: "Obedeci aos meus pais enquanto estive sob a sua tutela?", flag: "nao" },
+      { text: "Manifesto-lhes o devido amor, gratidão e respeito?", flag: "nao" },
+      { text: "Ajudo-os espiritual e materialmente?", flag: "nao" },
       "Entristeci-os com as minhas atitudes e comportamentos?",
       "Abandonei-os na velhice, ou na doença?",
-      "Tenho rezado por eles?",
+      { text: "Tenho rezado por eles?", flag: "nao" },
       "Zanguei-me com os meus irmãos? Maltratei-os?",
-      "Tenho transmitido a fé aos meus filhos?",
+      { text: "Tenho transmitido a fé aos meus filhos?", flag: "nao" },
       "Atrasei o seu batismo, ou a sua primeira comunhão?",
-      "Tenho me empenhado na sua educação?",
+      { text: "Tenho me empenhado na sua educação?", flag: "nao" },
       "Defendo-os do pecado? Dei-lhes maus exemplos?",
-      "Corrigi com firmeza e paciência os seus defeitos?",
+      {
+        text: "Corrigi com firmeza e paciência os seus defeitos?",
+        flag: "nao",
+      },
       "Fui amável com os estranhos e pouco amável na vida de família?",
       "Usei palavras duras com o meu esposo(a)?",
       "Evitei as discussões diante dos filhos? Tenho-lhe faltado ao respeito?",
-      "Ajudo, dentro das minhas possibilidades, os meus familiares nas necessidades espirituais ou materiais?",
-      "Guardei a abstinência de carne nas sextas-feiras ao longo do ano?",
-      "Jejuei na Quarta-Feira de Cinzas e Sexta-Feira Santa?",
-      "Confessei-me pelo menos uma vez por ano?",
-      "Comunguei pelo menos uma vez por ano pela Páscoa?",
-      "Tenho contribuído para as necessidades da Igreja segundo minhas possibilidades?",
-      "Obedeci ao Papa, ao meu Bispo e ao meu Pároco?",
-      "Obedeci às justas determinações das autoridades civis?",
+      {
+        text: "Ajudo, dentro das minhas possibilidades, os meus familiares nas necessidades espirituais ou materiais?",
+        flag: "nao",
+      },
+      {
+        text: "Guardei a abstinência de carne nas sextas-feiras ao longo do ano?",
+        flag: "nao",
+      },
+      {
+        text: "Jejuei na Quarta-Feira de Cinzas e Sexta-Feira Santa?",
+        flag: "nao",
+      },
+      { text: "Confessei-me pelo menos uma vez por ano?", flag: "nao" },
+      {
+        text: "Comunguei pelo menos uma vez por ano pela Páscoa?",
+        flag: "nao",
+      },
+      {
+        text: "Tenho contribuído para as necessidades da Igreja segundo minhas possibilidades?",
+        flag: "nao",
+      },
+      { text: "Obedeci ao Papa, ao meu Bispo e ao meu Pároco?", flag: "nao" },
+      {
+        text: "Obedeci às justas determinações das autoridades civis?",
+        flag: "nao",
+      },
     ],
   },
   {
@@ -155,7 +197,7 @@ export const SECTIONS: Section[] = [
       "Deixei-me levar pela ira?",
       "Alimentei pensamentos de vingança?",
       "Guardo, no coração, ódio ou rancor a alguém?",
-      "Perdoei verdadeiramente as ofensas que recebi?",
+      { text: "Perdoei verdadeiramente as ofensas que recebi?", flag: "nao" },
       "Deixei de falar ou nego a saudação a alguém?",
       "Cheguei a ferir ou a tirar a vida do próximo?",
       "Colaborei, de algum modo, em atos que ocasionassem a morte de um inocente?",
@@ -164,10 +206,13 @@ export const SECTIONS: Section[] = [
       "Fui gravemente imprudente na condução de veículos motorizados, pondo em risco a minha vida e dos outros?",
       "Cometi algum atentado contra a minha vida? Alimento pensamentos de suicídio?",
       "Embriaguei-me ou, levado pela gula, comi mais do que devia? Tomei drogas?",
-      "Preocupei-me eficazmente pelo bem do próximo, advertindo-o de algum perigo material ou espiritual, em que se encontrava?",
+      {
+        text: "Preocupei-me eficazmente pelo bem do próximo, advertindo-o de algum perigo material ou espiritual, em que se encontrava?",
+        flag: "nao",
+      },
       "Escandalizei o próximo, incitando-o a pecar, com as minhas conversas, o meu modo de vestir, ou convidando-o a praticar alguma má ação?",
-      "Visto-me com decência?",
-      "Procurei reparar o mal que causei pelo escândalo?",
+      { text: "Visto-me com decência?", flag: "nao" },
+      { text: "Procurei reparar o mal que causei pelo escândalo?", flag: "nao" },
     ],
   },
   {
@@ -188,7 +233,10 @@ export const SECTIONS: Section[] = [
       "Havia alguma circunstância — de parentesco, matrimónio, consagração a Deus, ou menoridade — que tornassem mais grave aquela ação?",
       "Vivo maritalmente com alguém com a qual não estou casado pela Igreja?",
       "Permiti situações que me colocaram numa situação próxima de pecado? Tenho em conta que expor-me a essas ocasiões já é pecado?",
-      "Antes de assistir a um filme ou de ler um livro procuro informar-me sobre a sua classificação moral?",
+      {
+        text: "Antes de assistir a um filme ou de ler um livro procuro informar-me sobre a sua classificação moral?",
+        flag: "nao",
+      },
       "Usei do matrimônio indevidamente procurando o prazer sexual fora do ato conjugal?",
       "Neguei ao meu cônjuge os seus direitos?",
       "Tive intenção de tornar o ato conjugal voluntariamente infecundo praticando assim a contracepção?",
@@ -210,23 +258,38 @@ export const SECTIONS: Section[] = [
     questions: [
       "Roubei algum objeto ou alguma quantia em dinheiro? Reparei os danos causados?",
       "Tive inveja dos outros? Cobicei as coisas alheias?",
-      "Paguei aos outros os salários devidos pelo trabalho?",
-      "Paguei os impostos?",
-      "Trabalhei com empenho nas horas que devia, ou desperdicei tempo no meu trabalho?",
+      {
+        text: "Paguei aos outros os salários devidos pelo trabalho?",
+        flag: "nao",
+      },
+      { text: "Paguei os impostos?", flag: "nao" },
+      {
+        text: "Trabalhei com empenho nas horas que devia, ou desperdicei tempo no meu trabalho?",
+        flag: "nao",
+      },
       "Abusei da confiança dos meus superiores?",
       "Prejudiquei o Estado, por exemplo, abusando do fundo de desemprego ou da baixa médica?",
       "Desrespeitei os direitos de autor, copiando livros, software, filmes ou músicas, contra a vontade do autor?",
-      "Devolvi ao respectivo dono coisas emprestadas ou encontradas?",
+      {
+        text: "Devolvi ao respectivo dono coisas emprestadas ou encontradas?",
+        flag: "nao",
+      },
       "Aproveitei-me injustamente da desgraça alheia?",
       "Prejudiquei, de algum modo, o próximo nos seus bens?",
       "Enganei o próximo cobrando mais do que o valor justo combinado, ou alterando a quantidade ou qualidade dos bens ou dos serviços prestados?",
-      "Reparei as injustiças que pratiquei?",
+      { text: "Reparei as injustiças que pratiquei?", flag: "nao" },
       "Tolerei abusos ou injustiças que tinha obrigação de impedir?",
       "Fiz acepção de pessoas ou manifestei favoritismo?",
       "Gastei mais do que permitem as minhas possibilidades?",
       "Desperdicei dinheiro no jogo ou noutras coisas fúteis?",
-      "Tratei com cuidado das minhas coisas ou, por descuido, estraguei-as?",
-      "Sei aceitar, com espírito cristão, a carência de coisas necessárias ou deixo-me vencer pela ira ou pela revolta?",
+      {
+        text: "Tratei com cuidado das minhas coisas ou, por descuido, estraguei-as?",
+        flag: "nao",
+      },
+      {
+        text: "Sei aceitar, com espírito cristão, a carência de coisas necessárias ou deixo-me vencer pela ira ou pela revolta?",
+        flag: "nao",
+      },
     ],
   },
   {
@@ -243,7 +306,10 @@ export const SECTIONS: Section[] = [
       "Fiz juízos falsos ou temerários?",
       "Copiei nos exames?",
       "Revelei, sem motivo justo, defeitos graves alheios que, embora reais, não são conhecidos?",
-      "Reparei de algum modo os prejuízos causados, por exemplo, falando dos aspectos positivos dessa pessoa?",
+      {
+        text: "Reparei de algum modo os prejuízos causados, por exemplo, falando dos aspectos positivos dessa pessoa?",
+        flag: "nao",
+      },
       "Caluniei, atribuindo ao próximo defeitos que não eram verdadeiros? Já reparei os males causados?",
       "Disse mal dos outros baseando-me apenas nos boatos que ouço?",
       "Colaborei, nas minhas conversas, na calúnia, na difamação ou na murmuração?",

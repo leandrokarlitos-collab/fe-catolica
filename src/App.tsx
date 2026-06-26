@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SECTIONS } from "./content/sections";
 import { isQuestionSection } from "./types";
 import { useExamState } from "./hooks/useExamState";
 import { useReducedMotion } from "./hooks/useReducedMotion";
-import { buildReviewText } from "./utils/buildReviewText";
+import { buildReviewText, countMarked } from "./utils/buildReviewText";
 import { copyText } from "./utils/clipboard";
 import { TopBar } from "./components/TopBar";
 import { ProgressBar } from "./components/ProgressBar";
@@ -22,6 +22,12 @@ export default function App() {
 
   const exam = useExamState();
   const reducedMotion = useReducedMotion();
+
+  const { answers, qnotes, notes } = exam;
+  const markedCount = useMemo(
+    () => countMarked(SECTIONS, { answers, qnotes, notes }),
+    [answers, qnotes, notes],
+  );
 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const isFirstRender = useRef(true);
@@ -123,7 +129,7 @@ export default function App() {
         currentIndex={idx}
         onJump={jump}
         data={exam}
-        markedCount={exam.markedCount}
+        markedCount={markedCount}
       />
 
       <main id="conteudo" className="reading" tabIndex={-1}>
@@ -156,7 +162,7 @@ export default function App() {
               section={section}
               sections={SECTIONS}
               data={exam}
-              markedCount={exam.markedCount}
+              markedCount={markedCount}
               confirmClear={confirmClear}
               toast={toast}
               onPrint={handlePrint}
@@ -169,7 +175,7 @@ export default function App() {
 
       <BottomNav
         label={section.label}
-        markedCount={exam.markedCount}
+        markedCount={markedCount}
         canPrev={idx > 0}
         canNext={idx < SECTIONS.length - 1}
         onPrev={() => go(-1)}

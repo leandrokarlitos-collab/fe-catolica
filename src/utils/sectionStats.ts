@@ -1,12 +1,12 @@
 import type { ExamData, Section } from "../types";
-import { isQuestionSection } from "../types";
+import { isQuestionSection, normalizeQuestion } from "../types";
 
 export interface SectionStat {
-  /** Perguntas respondidas (sim ou não). */
+  /** Perguntas já tratadas (respondidas, ou abertas com texto). */
   answered: number;
   /** Total de perguntas da seção. */
   total: number;
-  /** Há qualquer marcação "sim" ou anotação nesta seção. */
+  /** Há qualquer ponto marcado ou anotação nesta seção. */
   hasContent: boolean;
 }
 
@@ -15,11 +15,22 @@ export function sectionStat(section: Section, data: ExamData): SectionStat | nul
   if (!isQuestionSection(section)) return null;
   let answered = 0;
   let hasContent = (data.notes[section.id] ?? "").trim().length > 0;
-  section.questions.forEach((_, i) => {
+
+  section.questions.forEach((q, i) => {
+    const norm = normalizeQuestion(q);
     const key = `${section.id}-${i}`;
+    const note = (data.qnotes[key] ?? "").trim();
+    if (norm.open) {
+      if (note) {
+        answered += 1;
+        hasContent = true;
+      }
+      return;
+    }
     const ans = data.answers[key];
     if (ans) answered += 1;
-    if (ans === "sim" || (data.qnotes[key] ?? "").trim()) hasContent = true;
+    if (ans === norm.flag || note) hasContent = true;
   });
+
   return { answered, total: section.questions.length, hasContent };
 }
